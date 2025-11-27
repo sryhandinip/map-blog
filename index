@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Map Blog</title>
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 30%;
+    }
+
+    #sidebar {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      width: 30%;
+      box-sizing: border-box;
+      padding: 16px;
+      border-left: 1px solid #ddd;
+      background: #fff;
+      overflow-y: auto;
+    }
+
+    #sidebar h1 {
+      margin-top: 0;
+    }
+
+    .post-date {
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    .marker-list {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+
+    .marker-link {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .marker-link:hover {
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="sidebar">
+    <h1>My Map Blog</h1>
+    <div id="post">
+      <p>Click a point on the map to read a story.</p>
+    </div>
+
+    <div class="marker-list" id="marker-list">
+      <!-- list of posts will be inserted here -->
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // 1. Define your stories here
+    const posts = [
+      {
+        id: "alps-hike",
+        title: "Hiking in the Alps",
+        date: "2024-05-01",
+        coords: [46.8, 9.8],
+        content: `
+          <p class="post-date">1 May 2024 · Alps</p>
+          <p>Today I hiked through the Alps. The weather was perfect and the views were incredible.</p>
+          <p>We started early in the morning and followed a small trail along the ridge.
+          By midday we reached a mountain hut where we had lunch and coffee.</p>
+        `
+      },
+      {
+        id: "tokyo-night",
+        title: "Night Walk in Tokyo",
+        date: "2024-06-10",
+        coords: [35.6804, 139.7690],
+        content: `
+          <p class="post-date">10 June 2024 · Tokyo</p>
+          <p>Tokyo at night feels like another planet. Neon lights, tiny alleys, and late-night ramen.</p>
+          <p>I wandered around Shinjuku and got lost on purpose, just following whatever caught my eye.</p>
+        `
+      },
+      {
+        id: "beach-sunset",
+        title: "Sunset at the Beach",
+        date: "2024-07-20",
+        coords: [51.5074, -0.1278],
+        content: `
+          <p class="post-date">20 July 2024 · Beach</p>
+          <p>The sunset was unreal. The sky turned orange, pink, and purple as the sun disappeared.</p>
+          <p>We stayed until it was almost dark, listening to the waves and talking about everything and nothing.</p>
+        `
+      }
+    ];
+
+    // 2. Create the map
+    const map = L.map("map").setView([20, 0], 2); // world view
+
+    // 3. Add free OpenStreetMap tiles
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    const postContainer = document.getElementById("post");
+    const listContainer = document.getElementById("marker-list");
+
+    // Show selected post in the sidebar
+    function showPost(post) {
+      postContainer.innerHTML = `
+        <h2>${post.title}</h2>
+        ${post.content}
+      `;
+    }
+
+    // 4. Add markers to the map, and list items in the sidebar
+    posts.forEach((post) => {
+      // Map marker
+      const marker = L.marker(post.coords).addTo(map);
+      marker.bindTooltip(post.title);
+
+      marker.on("click", () => {
+        map.setView(post.coords, 10); // zoom to the location
+        showPost(post);
+      });
+
+      // Sidebar list item (optional, but nice UX)
+      const item = document.createElement("div");
+      item.innerHTML = `
+        <span class="marker-link">${post.title}</span>
+        <span class="post-date"> – ${post.date}</span>
+      `;
+      item.querySelector(".marker-link").onclick = () => {
+        map.setView(post.coords, 10);
+        showPost(post);
+      };
+
+      listContainer.appendChild(item);
+    });
+  </script>
+</body>
+</html>
