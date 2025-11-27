@@ -128,10 +128,11 @@
     const map = L.map("map").setView([20, 0], 2); // world view
 
     // 3. Add free OpenStreetMap tiles
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap contributors"
-    }).addTo(map);
+    L.tileLayer(
+  "https://api.maptiler.com/maps/pastel/{z}/{x}/{y}.png?key=YOUR_KEY",
+  { attribution: "MapTiler" }
+).addTo(map);
+
 
     const postContainer = document.getElementById("post");
     const listContainer = document.getElementById("marker-list");
