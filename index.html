@@ -64,6 +64,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="map"></div>
 
@@ -82,35 +83,33 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-  // 1. First story
-  const posts = [
-    {
-      id: "palu",
-      title: "Where I spent my childhood",
-      date: "2013",
-      coords: [-0.8917, 119.8707],
-      content: `
-        <p class="post-date">27 November 2025 · palu</p>
-        <p>Palu, or hammer in an Indonesian word, is the capital city of Central Sulawesi.</p>
-        <p>It is a two-hour flight from the capital of Indonesia.
-        I grew up in this city, where I can proudly say that I am a Kailinese.</p>
-      `
-    }
-  ];
-</script>
+    // 1. All Stories Combined Correctly
+    const posts = [
+      {
+        id: "palu",
+        title: "Where I spent my childhood",
+        date: "2013",
+        coords: [-0.8917, 119.8707],
+        content: `
+          <p class="post-date">27 November 2025 · Palu</p>
+          <p>Palu, or 'hammer' in the Indonesian language, is the capital city of Central Sulawesi.</p>
+          <p>It is a two-hour flight from the capital of Indonesia.
+          I grew up in this city, where I can proudly say that I am a Kailinese.</p>
+        `
+      },
 
       {
-  id: "yogyakarta",
-  title: "My Bachelor Year",
-  date: "2013",
-  coords: [-7.7705, 110.3776],
-  content: `
-    <p class="post-date">27 November 2025 · Yogyakarta</p>
-    <p>'One of the top three universities in Indonesia,' they said.</p>
-    <p>I majored in Cartography and Remote Sensing in the Faculty of Geography, Universitas Gadjah Mada (UGM).</p>
-    <p>I learned many things here, including geography, organizations, debating, and so on.</p>
-  `
-},
+        id: "yogyakarta",
+        title: "My Bachelor Year",
+        date: "2013",
+        coords: [-7.7705, 110.3776],
+        content: `
+          <p class="post-date">27 November 2025 · Yogyakarta</p>
+          <p>'One of the top three universities in Indonesia,' they said.</p>
+          <p>I majored in Cartography and Remote Sensing in the Faculty of Geography, Universitas Gadjah Mada (UGM).</p>
+          <p>I learned many things here, including geography, organizations, debating, and so on.</p>
+        `
+      },
 
       {
         id: "beach-sunset",
@@ -156,7 +155,7 @@
         showPost(post);
       });
 
-      // Sidebar list item (optional, but nice UX)
+      // Sidebar list item
       const item = document.createElement("div");
       item.innerHTML = `
         <span class="marker-link">${post.title}</span>
