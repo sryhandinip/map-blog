@@ -17,20 +17,66 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    #map {
+    /* ===== Layout ===== */
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid #ddd;
+      background: #fff;
+    }
+
+    .site-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-tab {
+      border: 1px solid #ddd;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #f7f7f7;
+    }
+
+    .nav-tab.active {
+      background: #222;
+      color: #fff;
+      border-color: #222;
+    }
+
+    #main {
+      flex: 1 1 auto;
+      position: relative;
+    }
+
+    /* ===== Map / Blog Layout ===== */
+    #map-blog {
       position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 30%;
+      inset: 0;
+      display: flex;
+    }
+
+    #map {
+      flex: 1 1 auto;
     }
 
     #sidebar {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      width: 30%;
+      flex: 0 0 30%;
       box-sizing: border-box;
       padding: 16px;
       border-left: 1px solid #ddd;
@@ -62,20 +108,132 @@
     .marker-link:hover {
       opacity: 0.7;
     }
+
+    /* ===== Profile / CV Section ===== */
+    #profile {
+      position: absolute;
+      inset: 0;
+      padding: 24px 32px;
+      overflow-y: auto;
+      background: #fafafa;
+      display: none; /* hidden by default, shown when Profile tab active */
+    }
+
+    #profile h2 {
+      margin-top: 0;
+    }
+
+    .profile-section {
+      margin-bottom: 24px;
+    }
+
+    .profile-links a {
+      display: inline-block;
+      margin-right: 12px;
+      margin-bottom: 8px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 999px;
+      color: #333;
+    }
+
+    .profile-links a:hover {
+      background: #eaeaea;
+    }
+
+    /* Basic styling for images inside popups */
+    .popup-image {
+      max-width: 220px;
+      display: block;
+      margin: 8px 0;
+      border-radius: 6px;
+    }
+
+    /* Mobile-ish adjustment */
+    @media (max-width: 800px) {
+      #map-blog {
+        flex-direction: column;
+      }
+
+      #map {
+        flex: 0 0 50%;
+      }
+
+      #sidebar {
+        flex: 1 1 50%;
+        border-left: none;
+        border-top: 1px solid #ddd;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <div id="map"></div>
+  <header>
+    <div class="site-title">My Map Blog</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="tab-map">Map Blog</button>
+      <button class="nav-tab" id="tab-profile">Profile / CV</button>
+    </div>
+  </header>
 
-  <div id="sidebar">
-    <h1>My Map Blog</h1>
-    <div id="post">
-      <p>Click a point on the map to read a story.</p>
+  <div id="main">
+    <!-- Map + Blog View -->
+    <div id="map-blog">
+      <div id="map"></div>
+
+      <div id="sidebar">
+        <h1>My Map Blog</h1>
+        <div id="post">
+          <p>Click a point on the map (or a title below) to read a story.</p>
+        </div>
+
+        <div class="marker-list" id="marker-list">
+          <!-- list of posts will be inserted here -->
+        </div>
+      </div>
     </div>
 
-    <div class="marker-list" id="marker-list">
-      <!-- list of posts will be inserted here -->
+    <!-- Profile / CV View -->
+    <div id="profile">
+      <h2>About Me</h2>
+
+      <div class="profile-section">
+        <h3>Short Profile</h3>
+        <p>
+          I am a geographer and GIS specialist with experience in cartography,
+          remote sensing, and disaster risk management. This space can be used
+          to write a short bio or summary of your background.
+        </p>
+      </div>
+
+      <div class="profile-section">
+        <h3>Curriculum Vitae (CV)</h3>
+        <p>
+          You can paste your CV summary here, or link to a PDF:
+          <br />
+          <a href="YOUR_CV_LINK_HERE.pdf" target="_blank" rel="noopener noreferrer">
+            View full CV (PDF)
+          </a>
+        </p>
+      </div>
+
+      <div class="profile-section">
+        <h3>Find Me Online</h3>
+        <div class="profile-links">
+          <a href="https://www.linkedin.com/in/sry-handini-puteri-65631181/?locale=en_US" target="_blank" rel="noopener noreferrer">
+            LinkedIn
+          </a>
+          <a href="https://medium.com/@sryhandiniputeri" target="_blank" rel="noopener noreferrer">
+            Medium
+          </a>
+          <a href="mailto:sryhandiniputeri@gmail.com">
+            Email Me
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -83,18 +241,37 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    // 1. All Stories Combined Correctly
+    // ===== 1. Posts with Popup Content =====
     const posts = [
       {
         id: "palu",
         title: "Where I spent my childhood",
         date: "2013",
         coords: [-0.8917, 119.8707],
+        // Content shown in the sidebar ("blog" style)
         content: `
           <p class="post-date">27 November 2025 · Palu</p>
           <p>Palu, or 'hammer' in the Indonesian language, is the capital city of Central Sulawesi.</p>
           <p>It is a two-hour flight from the capital of Indonesia.
           I grew up in this city, where I can proudly say that I am a Kailinese.</p>
+        `,
+        // Content shown in the Leaflet popup (can include image and links)
+        popupContent: `
+          <div>
+            <h3>Where I spent my childhood</h3>
+            <p>Palu, the capital city of Central Sulawesi, Indonesia.</p>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Palu_Bridge.jpg/320px-Palu_Bridge.jpg"
+              alt="Palu"
+              class="popup-image"
+            />
+            <p>
+              Read more about Palu on
+              <a href="https://en.wikipedia.org/wiki/Palu" target="_blank" rel="noopener noreferrer">
+                Wikipedia
+              </a>.
+            </p>
+          </div>
         `
       },
 
@@ -108,6 +285,23 @@
           <p>'One of the top three universities in Indonesia,' they said.</p>
           <p>I majored in Cartography and Remote Sensing in the Faculty of Geography, Universitas Gadjah Mada (UGM).</p>
           <p>I learned many things here, including geography, organizations, debating, and so on.</p>
+        `,
+        popupContent: `
+          <div>
+            <h3>My Bachelor Year</h3>
+            <p>Universitas Gadjah Mada (UGM), Yogyakarta.</p>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Gedung_Pusat_UGM.jpg/320px-Gedung_Pusat_UGM.jpg"
+              alt="UGM Yogyakarta"
+              class="popup-image"
+            />
+            <p>
+              View my related publication:
+              <a href="https://doi.org/10.1234/example" target="_blank" rel="noopener noreferrer">
+                Mapping Urban Change using Remote Sensing (example DOI)
+              </a>
+            </p>
+          </div>
         `
       },
 
@@ -117,22 +311,37 @@
         date: "2022",
         coords: [13.7563, 100.5018],
         content: `
-          <p class="post-date">27 November 2025 · bangkok</p>
+          <p class="post-date">27 November 2025 · Bangkok</p>
           <p>I worked in an international organization, focusing in disaster risk management.</p>
           <p>I was working as a GIS officer and there were only two Indonesians in the headquarter during that time.</p>
+        `,
+        popupContent: `
+          <div>
+            <h3>Work in Bangkok</h3>
+            <p>International organization, disaster risk management (GIS Officer).</p>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Bangkok_Skyline.jpg/320px-Bangkok_Skyline.jpg"
+              alt="Bangkok"
+              class="popup-image"
+            />
+            <p>
+              Learn more about my disaster risk work on
+              <a href="https://medium.com/@YOUR_USERNAME" target="_blank" rel="noopener noreferrer">
+                my Medium articles
+              </a>.
+            </p>
+          </div>
         `
       }
     ];
 
-    // 2. Create the map
+    // ===== 2. Create the map =====
     const map = L.map("map").setView([20, 0], 2); // world view
 
     // 3. Add free OpenStreetMap tiles
     L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", {
-  attribution: "&copy; CARTO & OpenStreetMap"
-}).addTo(map);
-
-
+      attribution: "&copy; CARTO & OpenStreetMap"
+    }).addTo(map);
 
     const postContainer = document.getElementById("post");
     const listContainer = document.getElementById("marker-list");
@@ -149,11 +358,17 @@
     posts.forEach((post) => {
       // Map marker
       const marker = L.marker(post.coords).addTo(map);
+
+      // Tooltip (hover)
       marker.bindTooltip(post.title);
+
+      // Popup (click) – can contain HTML, images, hyperlinks
+      marker.bindPopup(post.popupContent, { maxWidth: 300 });
 
       marker.on("click", () => {
         map.setView(post.coords, 10); // zoom to the location
-        showPost(post);
+        showPost(post);              // update sidebar
+        marker.openPopup();          // open popup on click
       });
 
       // Sidebar list item
@@ -165,10 +380,35 @@
       item.querySelector(".marker-link").onclick = () => {
         map.setView(post.coords, 10);
         showPost(post);
+        marker.openPopup();
       };
 
       listContainer.appendChild(item);
     });
+
+    // ===== 5. Simple Tab / Menu Logic =====
+    const tabMap = document.getElementById("tab-map");
+    const tabProfile = document.getElementById("tab-profile");
+    const mapBlogSection = document.getElementById("map-blog");
+    const profileSection = document.getElementById("profile");
+
+    function activateTab(tabName) {
+      if (tabName === "map") {
+        tabMap.classList.add("active");
+        tabProfile.classList.remove("active");
+        mapBlogSection.style.display = "block";
+        profileSection.style.display = "none";
+        map.invalidateSize(); // refresh map size when coming back to it
+      } else {
+        tabMap.classList.remove("active");
+        tabProfile.classList.add("active");
+        mapBlogSection.style.display = "none";
+        profileSection.style.display = "block";
+      }
+    }
+
+    tabMap.addEventListener("click", () => activateTab("map"));
+    tabProfile.addEventListener("click", () => activateTab("profile"));
   </script>
 </body>
 </html>
